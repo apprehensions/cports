@@ -1,0 +1,104 @@
+From 2abc827f4fd6de198010f640cc5838f45d8638b2 Mon Sep 17 00:00:00 2001
+From: sewn <sewn@disroot.org>
+Date: Sun, 21 Sep 2025 14:38:49 +0300
+Subject: [PATCH] downgrade gobject for chimera
+
+Signed-off-by: sewn <sewn@disroot.org>
+---
+ cambalache/__init__.py                   | 2 +-
+ cambalache/merengue/__init__.py          | 5 ++---
+ meson.build                              | 2 +-
+ tools/cmb_catalog_gen/cmb-catalog-gen.in | 4 ++--
+ tools/cmb_init_dev.py                    | 5 ++++-
+ 5 files changed, 10 insertions(+), 8 deletions(-)
+
+diff --git a/cambalache/__init__.py b/cambalache/__init__.py
+index 6247732..a9550b3 100644
+--- a/cambalache/__init__.py
++++ b/cambalache/__init__.py
+@@ -30,7 +30,7 @@ import builtins
+ 
+ from . import config
+ 
+-gi.require_version("GIRepository", "3.0")
++gi.require_version("GIRepository", "2.0")
+ gi.require_version("Gdk", "4.0")
+ gi.require_version("Gtk", "4.0")
+ gi.require_version("GtkSource", "5")
+diff --git a/cambalache/merengue/__init__.py b/cambalache/merengue/__init__.py
+index 887ba73..0951a8c 100644
+--- a/cambalache/merengue/__init__.py
++++ b/cambalache/merengue/__init__.py
+@@ -26,14 +26,13 @@ import os
+ import gi
+ import logging
+ 
+-gi.require_version('GIRepository', '3.0')
+ from . import config
+-from gi.repository import Gio, Gtk
++from gi.repository import Gio, Gtk, GIRepository
+ 
+ resource = Gio.Resource.load(os.path.join(config.pkgdatadir, "merengue.gresource"))
+ resource._register()
+ 
+-repository = gi.Repository.get_default()
++repository = GIRepository.Repository.get_default()
+ repository.prepend_search_path(config.privatecambalachedir)
+ repository.prepend_library_path(config.privatecambalachedir)
+ 
+diff --git a/meson.build b/meson.build
+index b42054d..c9461e2 100644
+--- a/meson.build
++++ b/meson.build
+@@ -27,7 +27,7 @@ privatecmb_catalog_gendir = join_paths(get_option('prefix'), get_option('libdir'
+ 
+ # Hard dependencies
+ libxml2_dep = dependency('libxml-2.0', version: '>= 2.9.0')
+-pygobject_dep = dependency('pygobject-3.0', version: '>= 3.52.0')
++pygobject_dep = dependency('pygobject-3.0', version: '>= 3.50.1')
+ gtk4_dep = dependency('gtk4', version: '>= 4.18.0')
+ casilda_dep = dependency('casilda-0.2', version: '>= 0.9.2', fallback: ['casilda', 'casilda_dep'])
+ adw_dep = dependency('libadwaita-1', version: '>= 1.7.0')
+diff --git a/tools/cmb_catalog_gen/cmb-catalog-gen.in b/tools/cmb_catalog_gen/cmb-catalog-gen.in
+index 911ae20..3e5c175 100755
+--- a/tools/cmb_catalog_gen/cmb-catalog-gen.in
++++ b/tools/cmb_catalog_gen/cmb-catalog-gen.in
+@@ -27,10 +27,10 @@ import argparse
+ import json
+ import signal
+ 
+-gi.require_version("GIRepository", "3.0")
++gi.require_version("GIRepository", "2.0")
+ from gi.repository import Gio
+ 
+-repository = gi.Repository.get_default()
++repository = GIRepository.Repository.get_default()
+ repository.prepend_search_path("@privatecmb_catalog_gendir@")
+ repository.prepend_library_path("@privatecmb_catalog_gendir@")
+ 
+diff --git a/tools/cmb_init_dev.py b/tools/cmb_init_dev.py
+index 4133cb1..584a2f3 100755
+--- a/tools/cmb_init_dev.py
++++ b/tools/cmb_init_dev.py
+@@ -28,6 +28,9 @@ import stat
+ import signal
+ import subprocess
+ 
++gi.require_version('GIRepository', '2.0')
++from gi.repository import GIRepository
++
+ basedir = os.path.join(os.path.split(os.path.dirname(__file__))[0])
+ localdir = os.path.join(basedir, ".local")
+ locallibdir = os.path.join(localdir, "lib", sys.implementation._multiarch)
+@@ -36,7 +39,7 @@ localpkgdatadir = os.path.join(localdir, "share", "cambalache")
+ catalogsdir = os.path.join(localpkgdatadir, "catalogs")
+ localbindir = os.path.join(localdir, "bin")
+ 
+-repository = gi.Repository.get_default()
++repository = GIRepository.Repository.get_default()
+ 
+ LD_LIBRARY_PATH = [locallibdir, f"{locallibdir}/cambalache", f"{locallibdir}/cmb_catalog_gen"]
+ for path in LD_LIBRARY_PATH:
+-- 
+2.51.0
+
