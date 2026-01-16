@@ -1,0 +1,6 @@
+type = process
+command = /usr/bin/conduwuit --config /etc/continuwuity/conduwuit.toml
+run-as = _continuwuity
+logfile = /var/log/continuwuity.log
+depends-on: network.target
+depends-on: local.target
